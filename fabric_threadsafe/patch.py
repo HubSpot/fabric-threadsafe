@@ -40,6 +40,7 @@ def patch_fabric():
     import sys
     from fabric import state as fstate
     from fabric.thread_handling import ThreadHandler
+    from fabric.utils import _AliasDict
 
     default_env = fstate.env
     default_output = fstate.output
@@ -51,7 +52,7 @@ def patch_fabric():
 
     def get_state_output(state=state, default_output=default_output):
         if not hasattr(state, 'output'):
-            state.output = default_output.copy()
+            state.output = _AttributeDictProxy(default_output.copy(), default_output.__dict__.get('aliases'))
         return state.output
 
     fstate.env = _AttributeDictProxy(get_state_env)

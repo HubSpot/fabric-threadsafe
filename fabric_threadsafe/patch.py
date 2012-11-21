@@ -1,10 +1,9 @@
-import gevent.monkey
-gevent.monkey.patch_all()
 import threading
 from functools import wraps
 from UserDict import UserDict
 
-state = threading.local()
+
+__all__ = ('patch_fabric',)
 
 
 class DictProxy(UserDict, object):
@@ -65,10 +64,12 @@ class _AliasDictProxy(_AttributeDictProxy):
 
 
 # monkeypatch
-def patch_fabric():
+def patch_fabric(localbuilder=threading.local):
     import sys
     from fabric import state as fstate
     from fabric.thread_handling import ThreadHandler
+
+    state = localbuilder()
 
     default_env = fstate.env
     default_output = fstate.output
@@ -114,7 +115,6 @@ def patch_fabric():
                 and m != 'fabric.state'):
             reload(v)
 
-patch_fabric()
 
 
 # /monkeypatch

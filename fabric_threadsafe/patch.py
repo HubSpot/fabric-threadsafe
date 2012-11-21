@@ -1,3 +1,5 @@
+import gevent.monkey
+gevent.monkey.patch_all()
 import threading
 from functools import wraps
 from UserDict import UserDict
@@ -40,13 +42,20 @@ def patch_fabric():
     from fabric.thread_handling import ThreadHandler
 
     default_env = fstate.env
+    default_output = fstate.output
 
     def get_state_env(state=state, default_env=default_env):
         if not hasattr(state, 'env'):
             state.env = default_env.copy()
         return state.env
 
+    def get_state_output(state=state, default_output=default_output):
+        if not hasattr(state, 'output'):
+            state.output = default_output.copy()
+        return state.output
+
     fstate.env = _AttributeDictProxy(get_state_env)
+    fstate.output = _AttributeDictProxy(get_state_output)
 
     def transfer_state(func):
         def inner(old_state):
